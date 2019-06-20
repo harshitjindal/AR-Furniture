@@ -19,6 +19,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Set the view's delegate
         sceneView.delegate = self
+        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
         
 //        // Create a new scene
 //        let moon = SCNSphere(radius: 0.2)
@@ -32,11 +33,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //        node.geometry = moon
         
         // Create a new scene
-        let sofa = SCNScene(named: "art.scnassets/sofa.scn")
-        if let sofaNode = sofa?.rootNode.childNode(withName: "sofa", recursively: true) {
-            sofaNode.position = SCNVector3(x: 0, y: 0, z: -1)
-            sceneView.scene.rootNode.addChildNode(sofaNode)
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,6 +41,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
 //        let configuration = AROrientationTrackingConfiguration()
+        configuration.planeDetection = .horizontal
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -59,4 +56,17 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     // MARK: - ARSCNViewDelegate
     
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        if anchor is ARPlaneAnchor {
+            print("Surface Detected")
+            let planeAnchor = anchor as! ARPlaneAnchor
+            let sofa = SCNScene(named: "art.scnassets/sofa.scn")
+            if let sofaNode = sofa?.rootNode.childNode(withName: "sofa", recursively: true) {
+                sofaNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
+                sofaNode.scale = SCNVector3(0.0005, 0.0005, 0.0005)
+                sceneView.scene.rootNode.addChildNode(sofaNode)
+                print("sofa yayy")
+            }
+        }
+    }
 }
